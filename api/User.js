@@ -10,18 +10,90 @@ res.send("API is Running ");
 
 router.get('/user',function(req,res)
 {
-res.send("Get User List  "+req.query.id);
+// res.send("Get User List  "+req.query.id);
+
+MongoClient.getUserList(function (result) {
+
+    console.log(result.length);
+    if(result.length==0){
+        var json=new Object();
+        json.status=201;
+        json.message="No user Found";
+        res.status(201);
+        res.send(json);
+    }
+    else{
+        var json=new Object();
+        json.status=200;
+        json.message="User Found";
+        json.data=result;
+        res.status(200);
+        res.send(json);
+    }
+        
+    
+})
+});
+
+router.put('/user',function(req,res){
+
+    // res.send("put request "+req.body.id);
+
+    
+MongoClient.updateUser(req.body.id,req.body.name,req.body.phoneNumber,req.body.email,req.body.age,req.body.country,req.body.salary,req.body.password,function(err,result)
+{
+    
+    if(err)
+    {   
+        var json=new Object();
+        json.status=201;
+        json.message=err.message;
+        res.status(201);
+        res.send(json);
+       
+    }
+    else{
+        var json=new Object();
+        json.status=200;
+        json.message="User Updated ";
+        json.data=result.result;
+        res.status(200);
+        res.send(json);
+        
+    }
+// console.log("User is Added  Successfully  "+JSON.stringify(result));
+
 });
 
 
+
+});
 router.post('/user',function(req,res)
 {
 
-MongoClient.addUser(req.body.name,req.body.phoneNumber,req.body.email,req.body.age,req.body.country,req.body.salary,req.body.password,function(result)
+MongoClient.addUser(req.body.name,req.body.phoneNumber,req.body.email,req.body.age,req.body.country,req.body.salary,req.body.password,function(err,result)
 {
     
+    if(err)
+    {   
+        var json=new Object();
+        json.status=201;
+        json.message=err.message;
+        res.status(201);
+        res.send(json);
+       
+    }
+    else{
+        var json=new Object();
+        json.status=200;
+        json.message="User Added ";
+        json.data=result.ops[0];
+        res.status(200);
+        res.send(json);
+        
+    }
 // console.log("User is Added  Successfully  "+JSON.stringify(result));
-res.send(result);
+
 });
 
 
@@ -29,6 +101,27 @@ res.send(result);
 });
 router.delete('/user',function(req,res)
 {
-res.send("Delete User ");
+
+    MongoClient.deleteUser(req.body.email,function (err,result) {
+        if(err)
+        {
+            var json=new Object();
+            json.status=201;
+            json.message=err.message;
+            res.status(201);
+            res.send(json);
+
+        }
+        else{
+            var json=new Object();
+            json.status=200;
+            json.message="User Deleted Successfully"
+            res.status(200);
+            // json.data=result;
+            res.send(json);
+        }
+      
+    });
+
 });
 module.exports = router;

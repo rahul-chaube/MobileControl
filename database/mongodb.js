@@ -2,37 +2,146 @@ const mongodb=require("mongodb").MongoClient;
 
 var MongoClient={
     addUser:function(name,phoneNumber,email,age,country,salary,password,callback){
-        mongodb.connect("mongodb://localhost:27017",function(err,client){
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
             if(err) throw err;
             console.log("MongoDB is Connected ");
 
             var db=client.db('myDatabaseTest');
-            insert(name,phoneNumber,email,age,country,salary,password,db,function (data) {
+            
 
-                console.log(" \n\n Step 1 "+JSON.stringify(data));
+            checkUserExists(email,db,function(result)
+            {
+                if(result==1)
+                {
+                    insert(name,phoneNumber,email,age,country,salary,password,db,function (data) {
+                        callback(null,data);
+
+                    });
+                }
+                else{
+                    callback(new Error("User Aleady exists"),null);
+                }
+                client.close();
+           
+            });
+        })  ;      
+    },
+    updateUser:function(id,name,phoneNumber,email,age,country,salary,password,callback){
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
+            if(err) throw err;
+            console.log("MongoDB is Connected ");
+
+            var db=client.db('myDatabaseTest');
+            
+
+            checkUserExists(email,db,function(result)
+            {
+                if(result==0)
+                {
+                    update(id,name,phoneNumber,email,age,country,salary,password,db,function (data) {
+                        callback(null,data);
+
+                    });
+                }
+                else{
+                    callback(new Error("No user Found "),null);
+                }
+                client.close();
+           
+            });
+        })  ;      
+    },
+    getUserList:function(callback){
+        mongodb.connect("mongodb://localhost:27017" ,{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
+            if(err) throw err;
+            var db=client.db('myDatabaseTest');
+            getUser(db,function (data) {
+
                 callback(data);
             });
             client.close();
-            
-            // db.collection('User',function (err,collection) {
-            //     if(err) throw err;
-            //    var result= collection.insert({fname:fname,lname:lname,mname:mname,age:age});
-            //     console.log(result);
-            // })
-            return "Added data ";
-        })  ;      
+        })  ;    
+
+    },
+    deleteUser:function (email,callback) {
+        mongodb.connect("mongodb://localhost:27017" ,{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
+            if(err) throw err;
+            var db=client.db('myDatabaseTest');
+            deleteUser(email,db,function (err,data) {
+                if(err)
+                {
+                    callback(err,null)
+                }
+                else
+                {
+
+                    console.log("In delete  "+data);
+                    
+                   if(data.result.n==0)
+                   callback(new Error("No Data to Delete "),null);
+                   else 
+                    callback(null,data);
+                }
+              
+            });
+            client.close();
+        })  ;    
+
+        
     }
 }
 
 function insert(name,phoneNumber,email,age,country,salary,password,db,callback) {
         const collection=db.collection('user');
-        collection.insert({name:name,phoneNumber:phoneNumber,email:email,age:age,country:country,salary:salary,password:password},function(err,result){
+        collection.insertOne({name:name,phoneNumber:phoneNumber,email:email,age:age,country:country,salary:salary,password:password},function(err,result){
             if(err) throw err
-
-            console.log("Collection is Added ................  "+JSON.stringify(result));
-            
             callback (result);
         })    
+}
+
+function update(id,name,phoneNumber,email,age,country,salary,password,db,callback) {
+    const collection=db.collection('user');
+    collection.updateOne({_id:id},{$set:{name:name,phoneNumber:phoneNumber,age:age,country:country,salary:salary,password:password}},{ upsert: true },function(err,result){
+        if(err) throw err
+        callback (result);
+    })    
+}
+
+function getUser(db,callback)
+{
+    const collection=db.collection('user');
+    collection.find({},{_id:1}).toArray(function(err, docs) {
+        if(err) throw err;
+        callback(docs);
+      });
+
+}
+function checkUserExists(email,db,callback)
+{
+    const collection=db.collection('user');
+    collection.find({email:email}).toArray(function(err,docs){
+
+    console.log("Insertion time "+docs);
+    
+        if(err)    callback(-1);  
+        if(docs.length==0){
+            callback(1);  
+        }
+        else{
+             callback(0);  
+            //  return 0; 
+        }
+    });
+
+}
+
+function deleteUser(email,db,callback) {
+    const collection=db.collection('user');
+    collection.deleteOne({email:email},function(err,docs){
+
+        callback(err,docs);
+    });
+        
 }
 
 module.exports=MongoClient;
