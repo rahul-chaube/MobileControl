@@ -3,6 +3,7 @@ const writeLog=require('./controller/WriteLog.js')
 const createUserApi=require("./api/User.js");
 var bodyParser = require('body-parser');
 const app=express();
+
 app.use(express.static('view'));
 app.use(bodyParser.urlencoded({ extended: true })); 
 app.get("/",(req,res)=>{

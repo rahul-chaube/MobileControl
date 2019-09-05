@@ -1,11 +1,37 @@
 var express = require('express');
 var router = express.Router();
 
-const MongoClient=require("../database/mongodb.js")
-
+const MongoClient=require("../database/mongodb.js");
+const DeviceDetailsApi=require("./DeviceDetails.js");
 router.get('/',function(req,res)
 {
 res.send("API is Running ");
+});
+router.use('/device',DeviceDetailsApi);
+
+router.post('/user/login',function(req,res)
+{
+   MongoClient.login(req.body.email,req.body.password,function (err,data) {
+      if(err)
+      {
+        var json=new Object();
+        json.status=201;
+        json.message=err.message;
+        res.status(201);
+        res.send(json);
+      } 
+      else
+      {
+        var json=new Object();
+        json.status=200;
+        json.message="Login SuccessFull";
+        json.data=data;
+        res.status(200);
+        res.send(json);
+      }
+
+   }); 
+// res.send("Login API is Called  ");
 });
 
 router.get('/user',function(req,res)

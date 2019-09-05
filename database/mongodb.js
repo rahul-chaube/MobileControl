@@ -1,6 +1,48 @@
 const mongodb=require("mongodb").MongoClient;
 
 var MongoClient={
+
+    login:function(email,password,callback){
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
+            if(err) throw err;
+            console.log("MongoDB is Connected ");
+
+            var db=client.db('myDatabaseTest');
+            
+
+            checkUserExists(email,db,function(result)
+            {
+                if(result==0)
+                {
+                    login(email,password,db,function (err,data) {
+                        if(err) {
+                            
+                            callback(err,data);
+                            
+                        }
+                        else{
+                            console.log("Data fir login "+data);
+                            
+                            if (data==null || data.length==0) {
+                                callback(new Error("Invalid Credatials "),null);
+                            }
+                            else{
+                                callback(null,data);
+                            }
+                       
+                        }
+                    });
+                }
+                else{
+                    callback(new Error("No user Found ,Please Register First "),null);
+                }
+                client.close();
+           
+            });
+        })  ;
+
+    },
+
     addUser:function(name,phoneNumber,email,age,country,salary,password,callback){
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
             if(err) throw err;
@@ -106,6 +148,14 @@ function update(id,name,phoneNumber,email,age,country,salary,password,db,callbac
         callback (result);
     })    
 }
+function login(email,password,db,callback) {
+    const collection=db.collection('user');
+    collection.findOne({email:email,password:password},function(err,result){
+        // if(err) throw err
+        // callback (result);
+        callback(err,result);
+    })    
+}
 
 function getUser(db,callback)
 {
@@ -120,9 +170,6 @@ function checkUserExists(email,db,callback)
 {
     const collection=db.collection('user');
     collection.find({email:email}).toArray(function(err,docs){
-
-    console.log("Insertion time "+docs);
-    
         if(err)    callback(-1);  
         if(docs.length==0){
             callback(1);  
@@ -138,6 +185,7 @@ function checkUserExists(email,db,callback)
 function deleteUser(email,db,callback) {
     const collection=db.collection('user');
     collection.deleteOne({email:email},function(err,docs){
+        
 
         callback(err,docs);
     });
