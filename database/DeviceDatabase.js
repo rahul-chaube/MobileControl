@@ -1,6 +1,6 @@
 const mongodb=require("mongodb").MongoClient;
 
-
+var ObjectId = require('mongodb').ObjectID;
 const DeviceClient={
     getDevice:function (deviceID,callback) {
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
@@ -16,7 +16,20 @@ const DeviceClient={
         });
         
     },
+    getAllDevice:function (user_id,callback) {
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
+        {
+            if(err) callback(err,null);
+            
+            var db=client.db('myDatabaseTest');
+                    findAllDevice(user_id,db,function (err,data) {
 
+                        callback(err,data);
+                        client.close();
+                    });
+        });
+        
+    },
     addDevice:function (dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,callback) {
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
         {
@@ -115,7 +128,19 @@ function checkUserExists(id,db,callback)
 function findDevice(device_id,db,callback) {
     
     const collection=db.collection('DeviceDetails');
-    collection.find({ "dname":"Samsung M20"},function (err,data) {
+    collection.find({ "_id":ObjectId(device_id)}).toArray(function (err,data) {
+
+        console.log("*** "+data);
+        if(err) throw err;
+        callback(err,data);
+    });
+    
+}
+
+function findAllDevice(user_id,db,callback) {
+    
+    const collection=db.collection('DeviceDetails');
+    collection.find({ "user_id":user_id}).toArray(function (err,data) {
 
         console.log("*** "+data);
         if(err) throw err;

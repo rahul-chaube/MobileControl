@@ -14,23 +14,52 @@ router.post("/getDevice",function (req,res) {
         {
             var json=new Object();
             json.status=401;
-            json.message=err.message;
+            json.message="No Device Found ";
             // json.device=result;
             res.status(401);
             res.send(json);
         }
         else{
-            // var json=new Object();
-            // json.status=200;
-            // json.message="Get Device ";
-            // json.device=result;
-            // res.status(200);
+            var json=new Object();
+            json.status=200;
+            json.message="Get Device ";
+            json.device=result;
+            res.status(200);
 
-            console.log("Data is "+ result instanceof Object);
+          
             
 
 
-            res.send("result");
+            res.send(json);
+        }
+    });
+ });
+
+ router.post("/getAllDevice",function (req,res) {
+    // res.send("Mobile Details API "); 
+
+    DeviceDetails.getAllDevice(req.body.user_id,function (err,result) {
+        if(err)
+        {
+            var json=new Object();
+            json.status=401;
+            json.message="No Device Found ";
+            // json.device=result;
+            res.status(401);
+            res.send(json);
+        }
+        else{
+            var json=new Object();
+            json.status=200;
+            json.message="Get Device ";
+            json.device=result;
+            res.status(200);
+
+          
+            
+
+
+            res.send(json);
         }
     });
  });

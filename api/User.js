@@ -151,11 +151,11 @@ router.delete('/user',function(req,res)
 
 });
 
-router.all('*',function (req,res) {
-    var json=new Object();
-    json.status=404;
-    json.message="Bad Url";
-    res.status(404);
-    res.send(json);
-})
+// router.all('*',function (req,res) {
+//     var json=new Object();
+//     json.status=404;
+//     json.message="Bad Url";
+//     res.status(404);
+//     res.send(json);
+// })
 module.exports = router;
