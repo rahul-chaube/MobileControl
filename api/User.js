@@ -15,9 +15,9 @@ router.post('/user/login',function(req,res)
       if(err)
       {
         var json=new Object();
-        json.status=201;
+        json.status=401;
         json.message=err.message;
-        res.status(201);
+        res.status(401);
         res.send(json);
       } 
       else
@@ -43,9 +43,9 @@ MongoClient.getUserList(function (result) {
     console.log(result.length);
     if(result.length==0){
         var json=new Object();
-        json.status=201;
+        json.status=401;
         json.message="No user Found";
-        res.status(201);
+        res.status(401);
         res.send(json);
     }
     else{
@@ -72,9 +72,9 @@ MongoClient.updateUser(req.body.id,req.body.name,req.body.phoneNumber,req.body.e
     if(err)
     {   
         var json=new Object();
-        json.status=201;
+        json.status=401;
         json.message=err.message;
-        res.status(201);
+        res.status(401);
         res.send(json);
        
     }
@@ -103,18 +103,18 @@ MongoClient.addUser(req.body.name,req.body.phoneNumber,req.body.email,req.body.a
     if(err)
     {   
         var json=new Object();
-        json.status=201;
+        json.status=401;
         json.message=err.message;
-        res.status(201);
+        res.status(401);
         res.send(json);
        
     }
     else{
         var json=new Object();
-        json.status=200;
+        json.status=201;
         json.message="User Added ";
         json.data=result.ops[0];
-        res.status(200);
+        res.status(201);
         res.send(json);
         
     }
@@ -132,17 +132,17 @@ router.delete('/user',function(req,res)
         if(err)
         {
             var json=new Object();
-            json.status=201;
+            json.status=401;
             json.message=err.message;
-            res.status(201);
+            res.status(401);
             res.send(json);
 
         }
         else{
             var json=new Object();
-            json.status=200;
+            json.status=201;
             json.message="User Deleted Successfully"
-            res.status(200);
+            res.status(201);
             // json.data=result;
             res.send(json);
         }
@@ -150,4 +150,12 @@ router.delete('/user',function(req,res)
     });
 
 });
+
+router.all('*',function (req,res) {
+    var json=new Object();
+    json.status=404;
+    json.message="Bad Url";
+    res.status(404);
+    res.send(json);
+})
 module.exports = router;

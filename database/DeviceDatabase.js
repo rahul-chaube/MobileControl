@@ -1,104 +1,70 @@
 const mongodb=require("mongodb").MongoClient;
 
-const mongo=require("mongodb");
 
 const DeviceClient={
-    addDevice:function (user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,callback) {
+    getDevice:function (deviceID,callback) {
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
         {
             if(err) callback(err,null);
             
             var db=client.db('myDatabaseTest');
-            checkUserExists(user_id,db,function (data) {
+                    findDevice(deviceID,db,function (err,data) {
 
-                if(data==1)
-                {
-                    addDeviceAndUser(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
+                        callback(err,data);
+                        client.close();
+                    });
+        });
+        
+    },
+
+    addDevice:function (dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,callback) {
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
+        {
+            if(err) callback(err,null);
+            
+            var db=client.db('myDatabaseTest');
+                    addDeviceAndUser(dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
                         callback(err,data);
                         client.close();
                     });
         
                     
-                }
-                else{
-                    addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
-                        callback(err,data);
-                        client.close();
-                    });
-           
-                }
-                
-            });
-
-            // addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
-            //     callback(err,data);
-            //     client.close();
-            // });
-
 
         });
     },
-    updateDevice:function (user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,callback) {
+    updateDevice:function (deviceID,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,callback) {
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
         {
             if(err) callback(err,null);
             
             var db=client.db('myDatabaseTest');
-            checkUserExists(user_id,db,function (data) {
+                    findDevice(deviceID,db,function (err,data) {
+                        if(err)
+                        callback(err,data);
+                        if(data.length==0)
+                        {
+                            callback(new Error("No Device Found"));
+                        }
+                        else{
+                        updateDevice(deviceID,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
+                            callback(err,data);
+                            client.close();
+                            
+                        });
+                    }
+                        
+                    });
 
-                if(data==1)
-                {
-                    addDeviceAndUser(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
-                        callback(err,data);
-                        client.close();
-                    });
-        
-                    
-                }
-                else{
-                    addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
-                        callback(err,data);
-                        client.close();
-                    });
            
-                }
-                
-            });
-
-            // addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
-            //     callback(err,data);
-            //     client.close();
-            // });
-
 
         });
     }
 };
-function addDeviceAndUser(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
-    // db.insertOne()
-    var id=new mongo.ObjectID();
-    
-      console.log("Uniqu id is "+id);
-        var device={
-            _id:id,
-            imei:imei,
-            mac_id:mac_id,
-            os:os,
-            mnf:mnf,
-            version:version,
-            model:model,
-            ram:ram,
-            rom:rom,
-            siminfo:JSON.parse(siminfo) 
-        };
-
-        var arr=[];
-        arr.push(device);
+function addDeviceAndUser(dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
         const collection=db.collection('DeviceDetails');
-        collection.insertOne({_id:user_id,device:arr},function (err,data) {
-            console.log(data);
-            
-            callbackack(err,device);  
+        collection.insertOne({dname:dname,user_id:user_id,imei:imei,mac_id:mac_id,os:os,mnf:mnf,version:version,
+            model:model,ram:ram,rom:rom,siminfo:JSON.parse(siminfo) },function (err,data) {
+                       callbackack(err,data);  
         
         
       });
@@ -107,11 +73,9 @@ function addDeviceAndUser(user_id,mac_id,imei,os,mnf,version,model,ram,rom,simin
 
 function addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
     // db.insertOne()
-    var id=new mongo.ObjectID();
     
-      console.log("Uniqu id is "+id);
         var device={
-            _id:id,
+        
             imei:imei,
             mac_id:mac_id,
             os:os,
@@ -146,6 +110,24 @@ function checkUserExists(id,db,callback)
         }
     });
 
+}
+
+function findDevice(device_id,db,callback) {
+    
+    const collection=db.collection('DeviceDetails');
+    collection.find({ "dname":"Samsung M20"},function (err,data) {
+
+        console.log("*** "+data);
+        if(err) throw err;
+        callback(err,data);
+    });
+    
+}
+function updateDevice(deviceID,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callback) {
+    const collection=db.collection('DeviceDetails');
+    collection.updateOne({_id:deviceID},{$set:{dname:dname,mac_id:mac_id,imei:imei,os:os,mnf:mnf,version:version,model:model,ram:ram,rom:rom,siminfo:siminfo}},function (err,data) {
+        callback(err,data);
+    });
 }
 
 
