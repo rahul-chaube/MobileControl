@@ -36,9 +36,45 @@ router.post("/getDevice",function (req,res) {
  });
 
  router.post("/getAllDevice",function (req,res) {
-    // res.send("Mobile Details API "); 
+    const count=10;
+     pageNumber=req.body.pageNo;
+    var skip=count*(pageNumber -1);
 
-    DeviceDetails.getAllDevice(req.body.user_id,function (err,result) {
+    console.log(count +"      "+pageNumber+"          "+skip+"   " +req.body.user_id);
+    
+    // res.send("Mobile Details API "); 
+    if(req.body.pageNo==undefined)
+    {
+        var json=new Object();
+        json.status=401;
+        json.message="Page Number Not Defined ";
+        // json.device=result;
+        res.status(401);
+        res.send(json);
+
+    }
+   else if(pageNumber<=0)
+    {
+        var json=new Object();
+        json.status=401;
+        json.message="Invalid Page NUmber ";
+        // json.device=result;
+        res.status(401);
+        res.send(json);
+    }
+    
+    else if(req.body.user_id==undefined)
+    {
+        var json=new Object();
+        json.status=401;
+        json.message="User ID not Defined ";
+        // json.device=result;
+        res.status(401);
+        res.send(json);
+
+    }
+else{
+    DeviceDetails.getAllDevice(req.body.user_id,pageNumber,function (err,result) {
         if(err)
         {
             var json=new Object();
@@ -51,6 +87,7 @@ router.post("/getDevice",function (req,res) {
         else{
             var json=new Object();
             json.status=200;
+            json.pageNo=pageNumber;
             json.message="Get Device ";
             json.device=result;
             res.status(200);
@@ -62,10 +99,11 @@ router.post("/getDevice",function (req,res) {
             res.send(json);
         }
     });
+}
  });
 
 router.post("/",function (req,res) {
-    DeviceDetails.addDevice(req.body.dname,req.body.user_id,req.body.mac_id,req.body.imei,req.body.os,req.body.mnf,
+    DeviceDetails.addDevice(req.body.fcmId,req.body.dname,req.body.user_id,req.body.mac_id,req.body.imei,req.body.os,req.body.mnf,
         req.body.version,req.body.model,req.body.ram,req.body.rom,req.body.siminfo,function (err,result) {
             if(err)
             {

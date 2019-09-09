@@ -1,6 +1,8 @@
 const mongodb=require("mongodb").MongoClient;
 
 var ObjectId = require('mongodb').ObjectID;
+
+var randomize = require('randomatic');
 const DeviceClient={
     getDevice:function (deviceID,callback) {
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
@@ -16,13 +18,13 @@ const DeviceClient={
         });
         
     },
-    getAllDevice:function (user_id,callback) {
+    getAllDevice:function (user_id,pageNumber,callback) {
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
         {
             if(err) callback(err,null);
             
             var db=client.db('myDatabaseTest');
-                    findAllDevice(user_id,db,function (err,data) {
+                    findAllDevice(user_id,pageNumber,db,function (err,data) {
 
                         callback(err,data);
                         client.close();
@@ -30,13 +32,13 @@ const DeviceClient={
         });
         
     },
-    addDevice:function (dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,callback) {
+    addDevice:function (fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,callback) {
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
         {
             if(err) callback(err,null);
             
             var db=client.db('myDatabaseTest');
-                    addDeviceAndUser(dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
+                    addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
                         callback(err,data);
                         client.close();
                     });
@@ -73,10 +75,11 @@ const DeviceClient={
         });
     }
 };
-function addDeviceAndUser(dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
+function addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
         const collection=db.collection('DeviceDetails');
+        const deviceTocken=randomize('A0', 8);
         collection.insertOne({dname:dname,user_id:user_id,imei:imei,mac_id:mac_id,os:os,mnf:mnf,version:version,
-            model:model,ram:ram,rom:rom,siminfo:JSON.parse(siminfo) },function (err,data) {
+            model:model,ram:ram,rom:rom,device_tocken:deviceTocken,fcmId:fcmId,assigned:false,siminfo:JSON.parse(siminfo) },function (err,data) {
                        callbackack(err,data);  
         
         
@@ -137,12 +140,13 @@ function findDevice(device_id,db,callback) {
     
 }
 
-function findAllDevice(user_id,db,callback) {
-    
+function findAllDevice(user_id,pageNumber,db,callback) {
+    const count =10;
+    var skipList=count*(pageNumber-1);
     const collection=db.collection('DeviceDetails');
-    collection.find({ "user_id":user_id}).toArray(function (err,data) {
+    collection.find({ "user_id":user_id}).skip(skipList).limit(count).toArray(function (err,data) {
 
-        console.log("*** "+data);
+    
         if(err) throw err;
         callback(err,data);
     });
