@@ -73,6 +73,60 @@ const DeviceClient={
            
 
         });
+    },
+    addMutipleApps:function (deviceID,apps,callback) {
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
+        {
+            if(err) callback(err,null);
+            
+            var db=client.db('myDatabaseTest');
+                    findDevice(deviceID,db,function (err,data) {
+                        if(err)
+                        callback(err,data);
+                        if(data.length==0)
+                        {
+                            callback(new Error("No Device Found"));
+                        }
+                        else{
+                        addMultipleApp(deviceID,apps,db,function (err,data) {
+                            callback(err,data);
+                            client.close();
+                            
+                        });
+                    }
+                        
+                    });
+
+           
+
+        });
+    },
+    addApps:function (deviceID,apps,callback) {
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
+        {
+            if(err) callback(err,null);
+            
+            var db=client.db('myDatabaseTest');
+                    findDevice(deviceID,db,function (err,data) {
+                        if(err)
+                        callback(err,data);
+                        if(data.length==0)
+                        {
+                            callback(new Error("No Device Found"));
+                        }
+                        else{
+                        addApp(deviceID,apps,db,function (err,data) {
+                            callback(err,data);
+                            client.close();
+                            
+                        });
+                    }
+                        
+                    });
+
+           
+
+        });
     }
 };
 function addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
@@ -85,6 +139,22 @@ function addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,r
         
       });
      
+}
+
+function addMultipleApp(deviceId,apps,db,callback)
+{
+    const collection=db.collection('DeviceDetails');
+    collection.updateOne({_id:ObjectId(deviceId)},{$set:{appList:JSON.parse(apps)}},function (err,data) {
+        callback(err,data);
+    });
+}
+
+function addApp(deviceId,apps,db,callback)
+{
+    const collection=db.collection('DeviceDetails');
+    collection.updateOne({_id:ObjectId(deviceId)},{$push:{appList:JSON.parse(apps)}},function (err,data) {
+        callback(err,data);
+    });
 }
 
 function addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {

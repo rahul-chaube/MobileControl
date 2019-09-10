@@ -129,6 +129,57 @@ router.post("/",function (req,res) {
 
  });
 
+ router.post("/addMultiApp",function (req,res) {
+    DeviceDetails.addMutipleApps(req.body.deviceId,req.body.apps,function (err,result) {
+            if(err)
+            {
+                var json=new Object();
+                json.status=201;
+                json.message=err.message;
+                // json.device=result;
+                res.status(201);
+                res.send(json);
+            }
+            else
+            {
+                var json=new Object();
+                json.status=200;
+                json.message="Device Added Succefully ";
+                json.device=result;
+                res.status(200);
+                res.send(json);
+                // res.send(result);
+            
+            }
+        });
+
+ });
+ router.post("/addApp",function (req,res) {
+    DeviceDetails.addApps(req.body.deviceId,req.body.apps,function (err,result) {
+            if(err)
+            {
+                var json=new Object();
+                json.status=201;
+                json.message=err.message;
+                // json.device=result;
+                res.status(201);
+                res.send(json);
+            }
+            else
+            {
+                var json=new Object();
+                json.status=200;
+                json.message="Device Added Succefully ";
+                json.device=result;
+                res.status(200);
+                res.send(json);
+                // res.send(result);
+            
+            }
+        });
+
+ });
+
  router.put("/",function (req,res) {
     DeviceDetails.updateDevice(req.body.deviceID,req.body.dname,req.body.user_id,req.body.mac_id,req.body.imei,req.body.os,req.body.mnf,
         req.body.version,req.body.model,req.body.ram,req.body.rom,req.body.siminfo,function (err,result) {
