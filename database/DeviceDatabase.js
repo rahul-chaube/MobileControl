@@ -127,6 +127,67 @@ const DeviceClient={
            
 
         });
+    },
+    delete:function (deviceID,callback) {
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
+        {
+            if(err) callback(err,null);
+            
+            var db=client.db('myDatabaseTest');
+                    findDevice(deviceID,db,function (err,data) {
+                        if(err)
+                        callback(err,data);
+                        if(data.length==0)
+                        {
+                            callback(new Error("No Device Found"));
+                        }
+                        else{
+                        deleteDevice(deviceID,db,function (err,data) {
+                            callback(err,data);
+                            client.close();
+                            
+                        });
+                    }
+                        
+                    });
+
+           
+
+        });
+    },
+    deleteAll:function (userId,callback) {
+        mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
+        {
+            if(err) callback(err,null);
+            
+            var db=client.db('myDatabaseTest');
+
+
+            deleteUserDevice(userId,db,function (err,data) {
+                callback(err,data);
+                client.close();
+                
+            });
+                    // findDevice(deviceID,db,function (err,data) {
+                    //     if(err)
+                    //     callback(err,data);
+                    //     if(data.length==0)
+                    //     {
+                    //         callback(new Error("No Device Found"));
+                    //     }
+                    //     else{
+                    //     deleteUserDevice(userId,db,function (err,data) {
+                    //         callback(err,data);
+                    //         client.close();
+                            
+                    //     });
+                    // }
+                        
+                    // });
+
+           
+
+        });
     }
 };
 function addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
@@ -224,9 +285,23 @@ function findAllDevice(user_id,pageNumber,db,callback) {
 }
 function updateDevice(deviceID,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callback) {
     const collection=db.collection('DeviceDetails');
-    collection.updateOne({_id:deviceID},{$set:{dname:dname,mac_id:mac_id,imei:imei,os:os,mnf:mnf,version:version,model:model,ram:ram,rom:rom,siminfo:siminfo}},function (err,data) {
+    collection.updateOne({_id:ObjectId(deviceID)},{$set:{dname:dname,mac_id:mac_id,imei:imei,os:os,mnf:mnf,version:version,model:model,ram:ram,rom:rom,siminfo:siminfo}},function (err,data) {
         callback(err,data);
     });
+}
+
+function deleteDevice(deviceID,db,callback) {
+    const collection=db.collection('DeviceDetails');
+    collection.deleteOne({_id:ObjectId(deviceID)},function (err,data) {
+        callback(err,data);
+    });
+}
+
+    function deleteUserDevice(user_id,db,callback) {
+        const collection=db.collection('DeviceDetails');
+        collection.deleteMany({user_id:user_id},{multi:true},function (err,data) {
+            callback(err,data);
+        });
 }
 
 
