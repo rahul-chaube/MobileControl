@@ -168,25 +168,6 @@ const DeviceClient={
                 client.close();
                 
             });
-                    // findDevice(deviceID,db,function (err,data) {
-                    //     if(err)
-                    //     callback(err,data);
-                    //     if(data.length==0)
-                    //     {
-                    //         callback(new Error("No Device Found"));
-                    //     }
-                    //     else{
-                    //     deleteUserDevice(userId,db,function (err,data) {
-                    //         callback(err,data);
-                    //         client.close();
-                            
-                    //     });
-                    // }
-                        
-                    // });
-
-           
-
         });
     }
 };
