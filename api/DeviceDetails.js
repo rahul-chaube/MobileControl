@@ -103,7 +103,6 @@ router.post("/",function (req,res) {
                 var json=new Object();
                 json.status=201;
                 json.message=err.message;
-                // json.device=result;
                 res.status(201);
                 res.send(json);
             }
@@ -115,15 +114,13 @@ router.post("/",function (req,res) {
                 json.device=result.ops[0];
                 res.status(200);
                 res.send(json);
-                // res.send(result);
-            
             }
         });
 
  });
 
  router.post("/addMultiApp",function (req,res) {
-    DeviceDetails.addMutipleApps(req.body.deviceId,req.body.apps,function (err,result) {
+    DeviceDetails.addMutipleApps(req.body.deviceId,JSON.stringify(req.body.apps),function (err,result) {
             if(err)
             {
                 var json=new Object();
@@ -138,7 +135,7 @@ router.post("/",function (req,res) {
                 var json=new Object();
                 json.status=200;
                 json.message="App Added Succefully ";
-                json.device=result;
+                // json.device=result;
                 res.status(200);
                 res.send(json);
                 // res.send(result);
@@ -148,7 +145,7 @@ router.post("/",function (req,res) {
 
  });
  router.post("/addApp",function (req,res) {
-    DeviceDetails.addApps(req.body.deviceId,req.body.apps,function (err,result) {
+    DeviceDetails.addApps(req.body.deviceId,JSON.stringify(req.body.apps),function (err,result) {
             if(err)
             {
                 var json=new Object();
@@ -230,7 +227,6 @@ router.post("/",function (req,res) {
                 var json=new Object();
                 json.status=201;
                 json.message=err.message;
-                // json.device=result;
                 res.status(201);
                 res.send(json);
             }
@@ -242,7 +238,7 @@ router.post("/",function (req,res) {
                 json.device=result;
                 res.status(200);
                 res.send(json);
-                // res.send(result);
+
             
             }
         });

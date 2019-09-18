@@ -91,10 +91,8 @@ const DeviceClient={
                         addMultipleApp(deviceID,apps,db,function (err,data) {
                             callback(err,data);
                             client.close();
-                            
                         });
                     }
-                        
                     });
 
            
@@ -242,11 +240,8 @@ function checkUserExists(id,db,callback)
 }
 
 function findDevice(device_id,db,callback) {
-    
     const collection=db.collection('DeviceDetails');
     collection.find({ "_id":ObjectId(device_id)}).toArray(function (err,data) {
-
-        console.log("*** "+data);
         if(err) throw err;
         callback(err,data);
     });
