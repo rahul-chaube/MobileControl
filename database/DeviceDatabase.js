@@ -174,27 +174,28 @@ const DeviceClient={
 function addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
         const collection=db.collection('DeviceDetails');
         const deviceTocken=randomize('A0', 8);
+        const createdAt=Math.floor(new Date() / 1000);
         collection.insertOne({dname:dname,user_id:user_id,imei:imei,mac_id:mac_id,os:os,mnf:mnf,version:version,
-            model:model,ram:ram,rom:rom,device_tocken:deviceTocken,fcmId:fcmId,assigned:false,siminfo:JSON.parse(siminfo) },function (err,data) {
+            model:model,ram:ram,rom:rom,device_tocken:deviceTocken,fcmId:fcmId,assigned:false,siminfo:JSON.parse(siminfo),createdAt:createdAt,updateAt:createdAt},function (err,data) {
                        callbackack(err,data);  
-        
-        
       });
      
 }
 
 function addMultipleApp(deviceId,apps,db,callback)
 {
+    const updateAt=Math.floor(new Date() / 1000);
     const collection=db.collection('DeviceDetails');
-    collection.updateOne({_id:ObjectId(deviceId)},{$set:{appList:JSON.parse(apps)}},function (err,data) {
+    collection.updateOne({_id:ObjectId(deviceId)},{$set:{appList:JSON.parse(apps),updateAt:updateAt}},function (err,data) {
         callback(err,data);
     });
 }
 
 function addApp(deviceId,apps,db,callback)
 {
+    const updateAt=Math.floor(new Date() / 1000);
     const collection=db.collection('DeviceDetails');
-    collection.updateOne({_id:ObjectId(deviceId)},{$push:{appList:JSON.parse(apps)}},function (err,data) {
+    collection.updateOne({_id:ObjectId(deviceId)},{$push:{appList:JSON.parse(apps)},$set:{updateAt:updateAt}},function (err,data) {
         callback(err,data);
     });
 }

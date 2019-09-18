@@ -7,15 +7,12 @@ router.get("/",function (req,res) {
 
 
 router.post("/getDevice",function (req,res) {
-    // res.send("Mobile Details API "); 
-
     DeviceDetails.getDevice(req.body.deviceID,function (err,result) {
         if(err)
         {
             var json=new Object();
             json.status=401;
             json.message="No Device Found ";
-            // json.device=result;
             res.status(401);
             res.send(json);
         }
@@ -25,11 +22,6 @@ router.post("/getDevice",function (req,res) {
             json.message="Get Device ";
             json.device=result;
             res.status(200);
-
-          
-            
-
-
             res.send(json);
         }
     });
@@ -103,8 +95,9 @@ else{
  });
 
 router.post("/",function (req,res) {
+
     DeviceDetails.addDevice(req.body.fcmId,req.body.dname,req.body.user_id,req.body.mac_id,req.body.imei,req.body.os,req.body.mnf,
-        req.body.version,req.body.model,req.body.ram,req.body.rom,req.body.siminfo,function (err,result) {
+        req.body.version,req.body.model,req.body.ram,req.body.rom,JSON.stringify(req.body.siminfo),function (err,result) {
             if(err)
             {
                 var json=new Object();

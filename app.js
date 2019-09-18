@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 const app=express();
 
 app.use(express.static('view'));
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.json()); 
 app.get("/",(req,res)=>{
         // res.send("Server is Running ");
         // writeLog.info("Write is done here ");
