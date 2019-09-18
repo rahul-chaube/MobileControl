@@ -2,6 +2,8 @@ const mongodb=require("mongodb").MongoClient;
 
 var ObjectId = require('mongodb').ObjectID;
 
+var Config=require("../config.js");
+
 var randomize = require('randomatic');
 const DeviceClient={
     getDevice:function (deviceID,callback) {
@@ -9,7 +11,7 @@ const DeviceClient={
         {
             if(err) callback(err,null);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
                     findDevice(deviceID,db,function (err,data) {
 
                         callback(err,data);
@@ -23,7 +25,7 @@ const DeviceClient={
         {
             if(err) callback(err,null);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
                     findAllDevice(user_id,pageNumber,db,function (err,data) {
 
                         callback(err,data);
@@ -37,7 +39,7 @@ const DeviceClient={
         {
             if(err) callback(err,null);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
                     addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,function (err,data) {
                         callback(err,data);
                         client.close();
@@ -52,7 +54,7 @@ const DeviceClient={
         {
             if(err) callback(err,null);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
                     findDevice(deviceID,db,function (err,data) {
                         if(err)
                         callback(err,data);
@@ -79,7 +81,7 @@ const DeviceClient={
         {
             if(err) callback(err,null);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
                     findDevice(deviceID,db,function (err,data) {
                         if(err)
                         callback(err,data);
@@ -103,8 +105,9 @@ const DeviceClient={
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client)
         {
             if(err) callback(err,null);
+            console.log("Database "+Config.DATABSENAME);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
                     findDevice(deviceID,db,function (err,data) {
                         if(err)
                         callback(err,data);
@@ -131,7 +134,7 @@ const DeviceClient={
         {
             if(err) callback(err,null);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
                     findDevice(deviceID,db,function (err,data) {
                         if(err)
                         callback(err,data);
@@ -158,7 +161,7 @@ const DeviceClient={
         {
             if(err) callback(err,null);
             
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
 
 
             deleteUserDevice(userId,db,function (err,data) {
@@ -170,7 +173,7 @@ const DeviceClient={
     }
 };
 function addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callbackack) {
-        const collection=db.collection('DeviceDetails');
+        const collection=db.collection(Config.DEVICE_COLLECTION);
         const deviceTocken=randomize('A0', 8);
         const createdAt=Math.floor(new Date() / 1000);
         collection.insertOne({dname:dname,user_id:user_id,imei:imei,mac_id:mac_id,os:os,mnf:mnf,version:version,
@@ -182,8 +185,9 @@ function addDeviceAndUser(fcmId,dname,user_id,mac_id,imei,os,mnf,version,model,r
 
 function addMultipleApp(deviceId,apps,db,callback)
 {
+    
     const updateAt=Math.floor(new Date() / 1000);
-    const collection=db.collection('DeviceDetails');
+    const collection=db.collection(Config.DEVICE_COLLECTION);
     collection.updateOne({_id:ObjectId(deviceId)},{$set:{appList:JSON.parse(apps),updateAt:updateAt}},function (err,data) {
         callback(err,data);
     });
@@ -192,7 +196,7 @@ function addMultipleApp(deviceId,apps,db,callback)
 function addApp(deviceId,apps,db,callback)
 {
     const updateAt=Math.floor(new Date() / 1000);
-    const collection=db.collection('DeviceDetails');
+    const collection=db.collection(Config.DEVICE_COLLECTION);
     collection.updateOne({_id:ObjectId(deviceId)},{$push:{appList:JSON.parse(apps)},$set:{updateAt:updateAt}},function (err,data) {
         callback(err,data);
     });
@@ -216,7 +220,7 @@ function addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,c
 
         // var arr=[];
         // arr.push(device);
-        const collection=db.collection('DeviceDetails');
+        const collection=db.collection(Config.DEVICE_COLLECTION);
         collection.findOneAndUpdate({_id:user_id},{$push:{device:device}},function (err,data) {
             callbackack(err,device);  
         
@@ -225,7 +229,7 @@ function addDevice(user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,c
 }
 function checkUserExists(id,db,callback)
 {
-    const collection=db.collection('DeviceDetails');
+    const collection=db.collection(Config.DEVICE_COLLECTION);
     collection.find({_id:id}).toArray(function(err,docs){
         if(err)    callback(-1);  
         if(docs.length==0){
@@ -240,7 +244,7 @@ function checkUserExists(id,db,callback)
 }
 
 function findDevice(device_id,db,callback) {
-    const collection=db.collection('DeviceDetails');
+    const collection=db.collection(Config.DEVICE_COLLECTION);
     collection.find({ "_id":ObjectId(device_id)}).toArray(function (err,data) {
         if(err) throw err;
         callback(err,data);
@@ -251,7 +255,7 @@ function findDevice(device_id,db,callback) {
 function findAllDevice(user_id,pageNumber,db,callback) {
     const count =10;
     var skipList=count*(pageNumber-1);
-    const collection=db.collection('DeviceDetails');
+    const collection=db.collection(Config.DEVICE_COLLECTION);
     collection.find({ "user_id":user_id}).skip(skipList).limit(count).toArray(function (err,data) {
 
     
@@ -261,25 +265,25 @@ function findAllDevice(user_id,pageNumber,db,callback) {
     
 }
 function updateDevice(deviceID,dname,user_id,mac_id,imei,os,mnf,version,model,ram,rom,siminfo,db,callback) {
-    const collection=db.collection('DeviceDetails');
+    const collection=db.collection(Config.DEVICE_COLLECTION);
     collection.updateOne({_id:ObjectId(deviceID)},{$set:{dname:dname,mac_id:mac_id,imei:imei,os:os,mnf:mnf,version:version,model:model,ram:ram,rom:rom,siminfo:siminfo}},function (err,data) {
         callback(err,data);
     });
 }
 
 function deleteDevice(deviceID,db,callback) {
-    const collection=db.collection('DeviceDetails');
+    const collection=db.collection(Config.DEVICE_COLLECTION);
     collection.deleteOne({_id:ObjectId(deviceID)},function (err,data) {
         callback(err,data);
     });
 }
 
     function deleteUserDevice(user_id,db,callback) {
-        const collection=db.collection('DeviceDetails');
+        const collection=db.collection(Config.DEVICE_COLLECTION);
         collection.deleteMany({user_id:user_id},{multi:true},function (err,data) {
             callback(err,data);
         });
 }
 
 
-module.exports=DeviceClient;;
+module.exports=DeviceClient;

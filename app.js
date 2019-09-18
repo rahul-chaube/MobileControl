@@ -3,7 +3,7 @@ const writeLog=require('./controller/WriteLog.js')
 const createUserApi=require("./api/User.js");
 var bodyParser = require('body-parser');
 const app=express();
-
+const Config=require('./config.js');
 app.use(express.static('view'));
 app.use(bodyParser.json()); 
 app.get("/",(req,res)=>{
@@ -35,8 +35,8 @@ app.use(function(req, res, next) {
 //         res.send(json);
 //     })
 
-app.listen(3000,()=>{
-    console.log("Server is Runiing on port 3000");
+app.listen(Config.PORT_NUMBER,()=>{
+    console.log("Server is Runiing on port "+Config.PORT_NUMBER);
     
     
 });

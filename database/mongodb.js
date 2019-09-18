@@ -1,5 +1,5 @@
 const mongodb=require("mongodb").MongoClient;
-
+const Config=require('../config.js')
 var MongoClient={
 
     login:function(email,password,callback){
@@ -7,7 +7,7 @@ var MongoClient={
             if(err) throw err;
             console.log("MongoDB is Connected ");
 
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
             
 
             checkUserExists(email,db,function(result)
@@ -48,7 +48,7 @@ var MongoClient={
             if(err) throw err;
             console.log("MongoDB is Connected ");
 
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
             
 
             checkUserExists(email,db,function(result)
@@ -73,7 +73,7 @@ var MongoClient={
             if(err) throw err;
             console.log("MongoDB is Connected ");
 
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
             
 
             checkUserExists(email,db,function(result)
@@ -96,7 +96,7 @@ var MongoClient={
     getUserList:function(callback){
         mongodb.connect("mongodb://localhost:27017" ,{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
             if(err) throw err;
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
             getUser(db,function (data) {
 
                 callback(data);
@@ -108,7 +108,7 @@ var MongoClient={
     deleteUser:function (email,callback) {
         mongodb.connect("mongodb://localhost:27017" ,{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
             if(err) throw err;
-            var db=client.db('myDatabaseTest');
+            var db=client.db(Config.DATABSENAME);
             deleteUser(email,db,function (err,data) {
                 if(err)
                 {
@@ -134,7 +134,7 @@ var MongoClient={
 }
 
 function insert(name,phoneNumber,email,age,country,salary,password,db,callback) {
-        const collection=db.collection('user');
+        const collection=db.collection(Config.USER_COLLCTION);
         collection.insertOne({name:name,phoneNumber:phoneNumber,email:email,age:age,country:country,salary:salary,password:password},function(err,result){
             if(err) throw err
             callback (result);
@@ -142,14 +142,14 @@ function insert(name,phoneNumber,email,age,country,salary,password,db,callback) 
 }
 
 function update(id,name,phoneNumber,email,age,country,salary,password,db,callback) {
-    const collection=db.collection('user');
+    const collection=db.collection(Config.USER_COLLCTION);
     collection.updateOne({_id:id},{$set:{name:name,phoneNumber:phoneNumber,age:age,country:country,salary:salary,password:password}},{ upsert: true },function(err,result){
         if(err) throw err
         callback (result);
     })    
 }
 function login(email,password,db,callback) {
-    const collection=db.collection('user');
+    const collection=db.collection(Config.USER_COLLCTION);
     collection.findOne({email:email,password:password},function(err,result){
         // if(err) throw err
         // callback (result);
@@ -159,7 +159,7 @@ function login(email,password,db,callback) {
 
 function getUser(db,callback)
 {
-    const collection=db.collection('user');
+    const collection=db.collection(Config.USER_COLLCTION);
     collection.find({},{_id:1}).toArray(function(err, docs) {
         if(err) throw err;
         callback(docs);
@@ -168,7 +168,7 @@ function getUser(db,callback)
 }
 function checkUserExists(email,db,callback)
 {
-    const collection=db.collection('user');
+    const collection=db.collection(Config.USER_COLLCTION);
     collection.find({email:email}).toArray(function(err,docs){
         if(err)    callback(-1);  
         if(docs.length==0){
@@ -183,7 +183,7 @@ function checkUserExists(email,db,callback)
 }
 
 function deleteUser(email,db,callback) {
-    const collection=db.collection('user');
+    const collection=db.collection(Config.USER_COLLCTION);
     collection.deleteOne({email:email},function(err,docs){
         
 
