@@ -5,8 +5,7 @@ var MongoClient={
     login:function(email,password,callback){
         mongodb.connect("mongodb://localhost:27017",{ useNewUrlParser: true, useUnifiedTopology: true },function(err,client){
             if(err) throw err;
-            console.log("MongoDB is Connected ");
-
+           
             var db=client.db(Config.DATABSENAME);
             
 
@@ -21,8 +20,6 @@ var MongoClient={
                             
                         }
                         else{
-                            console.log("Data fir login "+data);
-                            
                             if (data==null || data.length==0) {
                                 callback(new Error("Invalid Credatials "),null);
                             }

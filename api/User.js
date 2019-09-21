@@ -3,11 +3,14 @@ var router = express.Router();
 
 const MongoClient=require("../database/mongodb.js");
 const DeviceDetailsApi=require("./DeviceDetails.js");
+
+const FirebaseMessaging=require("./FirebaseMessages");
 router.get('/',function(req,res)
 {
 res.send("API is Running ");
 });
 router.use('/device',DeviceDetailsApi);
+router.use('/message',FirebaseMessaging);
 
 router.post('/user/login',function(req,res)
 {

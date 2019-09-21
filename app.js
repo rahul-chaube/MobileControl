@@ -2,10 +2,13 @@ const express=require("express");
 const writeLog=require('./controller/WriteLog.js')
 const createUserApi=require("./api/User.js");
 var bodyParser = require('body-parser');
+
+var responseTime = require('response-time')
 const app=express();
 const Config=require('./config.js');
 app.use(express.static('view'));
 app.use(bodyParser.json()); 
+app.use(responseTime())
 app.get("/",(req,res)=>{
         // res.send("Server is Running ");
         // writeLog.info("Write is done here ");
